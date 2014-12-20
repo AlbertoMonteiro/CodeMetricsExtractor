@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -14,6 +15,7 @@ namespace MetricsExtractor
     class Program
     {
         private static readonly List<ClassRank> ClassRanks = Enum.GetValues(typeof(ClassRank)).Cast<ClassRank>().ToList();
+        private static readonly string ApplicationPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
         static void Main(string[] args)
         {
@@ -27,10 +29,8 @@ namespace MetricsExtractor
 
             var projectsArguments = string.Join(" ", GetProjectsPath(metricConfiguration).Select(x => string.Format("/f:\"{0}\"", x)));
 
-            var metricsOutput = Path.Combine(Environment.CurrentDirectory, "Metrics.xml");
+            var metricsOutput = Path.Combine(metricConfiguration.SolutionDirectory, "Metrics.xml");
             RunCodeMetrics(projectsArguments, metricsOutput);
-           
-            Console.Clear();
             var metricsReport = CollectCodeMetricsReport(metricsOutput);
 
             var modules = metricsReport.Targets.Select(x => x.Modules.Module).ToList();
@@ -38,7 +38,7 @@ namespace MetricsExtractor
 
             const int MAX_LINES_OF_CODE_ON_METHOD = 30;
 
-            var metodos = types.SelectMany(x => x.Members, (type, member) => new MetodoComTipo{ Tipo = type, Metodo = member }).ToList();
+            var metodos = types.SelectMany(x => x.Members, (type, member) => new MetodoComTipo { Tipo = type, Metodo = member }).ToList();
 
             var metodosRuins = GetMetodosRuins(metodos, MAX_LINES_OF_CODE_ON_METHOD);
 
@@ -50,24 +50,41 @@ namespace MetricsExtractor
 
             var reportPath = GenerateReport(resultadoGeral, metricConfiguration.SolutionDirectory);
 
+#if DEBUG
             Process.Start(reportPath);
+#endif
         }
 
         private static string GenerateReport(EstadoDoProjeto resultadoGeral, string solutionDirectory)
         {
-            var reportTemplateFactory = new ReportTemplateFactory();
-
-            var report = reportTemplateFactory.GetReport(resultadoGeral);
-
-            var list = Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "ReportTemplate"), "*.css").ToList();
-
             var reportDirectory = Path.Combine(solutionDirectory, "CodeMetricsReport");
-            var reportPath = Path.Combine(reportDirectory, "Index.html");
+            var reportPath = Path.Combine(reportDirectory, "CodeMetricsReport.zip");
+
+            var reportTemplateFactory = new ReportTemplateFactory();
+            var report = reportTemplateFactory.GetReport(resultadoGeral);
+            var list = Directory.GetFiles(Path.Combine(ApplicationPath, "ReportTemplate"), "*.css").ToList();
 
             Directory.CreateDirectory(reportDirectory);
-            foreach (var item in list)
-                File.Copy(item, Path.Combine(reportDirectory, Path.GetFileName(item)), true);
-            File.WriteAllText(reportPath, report, Encoding.UTF8);
+            using (var zipArchive = new ZipArchive(File.OpenWrite(reportPath), ZipArchiveMode.Create))
+            {
+                foreach (var item in list)
+                {
+                    var fileName = Path.GetFileName(item);
+                    zipArchive.CreateEntryFromFile(item, fileName);
+#if DEBUG
+                    File.Copy(item, Path.Combine(reportDirectory, fileName), true);
+#endif
+                }
+                var archiveEntry = zipArchive.CreateEntry("Index.html");
+                using (var stream = archiveEntry.Open())
+                using (var streamWriter = new StreamWriter(stream, Encoding.UTF8))
+                    streamWriter.Write(report);
+#if DEBUG
+                reportPath = Path.Combine(reportDirectory, "Index.html");
+                File.WriteAllText(reportPath, report, Encoding.UTF8); 
+#endif
+                zipArchive.Dispose();
+            }
             return reportPath;
         }
 
@@ -116,7 +133,7 @@ namespace MetricsExtractor
 
         private static CodeMetricsReport CollectCodeMetricsReport(string metricsOutput)
         {
-            var xmlSerializer = new XmlSerializer(typeof (CodeMetricsReport));
+            var xmlSerializer = new XmlSerializer(typeof(CodeMetricsReport));
             CodeMetricsReport metricsReport;
             using (var fileStream = File.OpenRead(metricsOutput))
                 metricsReport = (CodeMetricsReport)xmlSerializer.Deserialize(fileStream);
@@ -125,7 +142,7 @@ namespace MetricsExtractor
 
         private static void RunCodeMetrics(string projectsArguments, string metricsOutput)
         {
-            var metricsExePath = Path.Combine(Environment.CurrentDirectory, "metrics/metrics.exe");
+            var metricsExePath = Path.Combine(ApplicationPath, "metrics/metrics.exe");
             var arguments = string.Format("{0} /igc /iit /o:\"{1}\"", projectsArguments, metricsOutput);
             var process = Process.Start(new ProcessStartInfo(metricsExePath, arguments) { UseShellExecute = false });
             process.WaitForExit();
@@ -143,9 +160,9 @@ namespace MetricsExtractor
                                 where match.Success && !ignorageWords.Any(x => match.Groups["name"].Value.EndsWith(x))
                                 let projectDirectory = Path.GetDirectoryName(Path.Combine(metricConfiguration.SolutionDirectory, projectPath))
                                 select Directory.EnumerateFiles(projectDirectory, match.Groups["name"].Value + ".dll", SearchOption.AllDirectories).FirstOrDefault()
-                                into path
-                                where path != null
-                                select path).ToList();
+                                    into path
+                                    where path != null
+                                    select path).ToList();
 
             return projectsName;
         }
