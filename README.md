@@ -12,8 +12,8 @@ With Code Metrics Extractor you can see project health overview, classes health 
 
 ## Classes health overview
 
-![Classes Health](/Etc/Project Health.png)
+![Classes Health](/Etc/Classes Health.png)
 
 ## Bad methods
 
-![Bad methods](/Etc/Project Health.png)
+![Bad methods](/Etc/Bad Methods.png)
