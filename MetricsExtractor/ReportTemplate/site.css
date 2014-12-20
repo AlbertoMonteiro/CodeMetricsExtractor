@@ -1,0 +1,23 @@
+.centered {
+	width: 1280px;
+	margin: auto;
+	margin-top: 50px;
+}
+
+.texto-centralizado {
+	text-align: center;
+}
+
+.barra-de-progresso {
+    height: 30px;
+    text-align: center;
+}
+
+.progress-bar-success {
+    -moz-transition: width 1s ease-in-out;
+    -o-transition: width 1s ease-in-out;
+    -webkit-transition: width 1s ease-in-out;
+    -ms-transition: width 1s ease-in-out;
+    transition: width 1s ease-in-out;
+    width: 0%;
+}

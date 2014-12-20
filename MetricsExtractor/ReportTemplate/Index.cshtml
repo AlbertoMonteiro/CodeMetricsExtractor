@@ -1,0 +1,98 @@
+﻿@using MetricsExtractor
+@model MetricsExtractor.EstadoDoProjeto
+<html>
+<head>
+    <title>Resultado Geral</title>
+    <link rel="stylesheet" type="text/css" href="bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="site.css">
+</head>
+<body>
+    <div class="centered">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h1 class="panel-title texto-centralizado">Saúde do Projeto</h1>
+            </div>
+            <div class="panel-body">
+                <div class="progress progress-striped barra-de-progresso">
+                    <div class="progress-bar progress-bar-success"></div>
+                </div>
+                <table class="table table-striped table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Manutenibilidade</th>
+                            <th>Complexidade Ciclomática</th>
+                            <th>Acoplamento</th>
+                            <th>Herança</th>
+                            <th>Linhas de código(IL)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>@Model.Manutenibilidade</td>
+                            <td>@(Model.CC.ToString("P"))</td>
+                            <td>@Model.Acoplamento.ToString("P")</td>
+                            <td>@Model.ProfuDeHeranca.ToString("N0")</td>
+                            <td>@(Model.LinhasDeCodigo.ToString("N0"))</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div>
+            <h2>Saúde das classes</h2>
+            <table class="table table-striped table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th class="success">Rank A</th>
+                        <th class="success">Rank B</th>
+                        <th class="warning">Rank C</th>
+                        <th class="warning">Rank D</th>
+                        <th class="danger">Rank E</th>
+                        <th class="danger">Rank F</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@Model.TotalDeClassesPorRank[ClassRank.A]</td>
+                        <td>@Model.TotalDeClassesPorRank[ClassRank.B]</td>
+                        <td>@Model.TotalDeClassesPorRank[ClassRank.C]</td>
+                        <td>@Model.TotalDeClassesPorRank[ClassRank.D]</td>
+                        <td>@Model.TotalDeClassesPorRank[ClassRank.E]</td>
+                        <td>@Model.TotalDeClassesPorRank[ClassRank.F]</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <h2>Métodos ruins (@Model.MetodosRuins.Count/@Model.TotalDeMetodos => @Model.PercentualDeMetodosRuins.ToString("P"))</h2>
+            <table class="table table-striped table-hover ">
+                <thead>
+                    <tr>
+                        <th>Classe</th>
+                        <th>Nome do método</th>
+                        <th>Quantidade de linhas(IL)</th>
+                        <th>Complexidade Ciclomática</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (MetodoRuim metodoRuim in Model.MetodosRuins)
+                    {
+                        <tr>
+                            <td>@metodoRuim.ClassName</td>
+                            <td>@metodoRuim.NomeMetodo</td>
+                            <td>@metodoRuim.QuantidadeDeLinhas</td>
+                            <td>@metodoRuim.Complexidade</td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+    <script type="text/javascript">
+        setTimeout(function () {
+            document.querySelector(".progress-bar-success").style.width = "@(Model.Manutenibilidade)%";
+        }, 100);
+    </script>
+</body>
+</html>
