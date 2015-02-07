@@ -153,7 +153,7 @@ namespace MetricsExtractor
             var solutionLines = File.ReadLines(metricConfiguration.Solution).Where(l => l.StartsWith("Project")).ToList();
 
             const string STR_REGEX = @"Project\(""\{[\w-]+\}""\) = ""(?<name>[\w.]+)"", ""(?<path>.+\.csproj?)"", ""\{[\w-]+\}";
-            var ignorageWords = metricConfiguration.IgnoredProjects;
+            var ignorageWords = metricConfiguration.IgnoredProjects ?? Enumerable.Empty<string>();
             var projectsName = (from solutionLine in solutionLines
                                 let match = Regex.Match(solutionLine, STR_REGEX)
                                 let projectPath = match.Groups["path"].Value
