@@ -10,5 +10,7 @@ namespace MetricsExtractor
         public string SolutionDirectory { get { return Path.GetDirectoryName(Solution); } }
 
         public string[] IgnoredProjects { get; set; }
+        
+        public string[] IgnoredNamespaces { get; set; }
     }
 }

@@ -5,6 +5,8 @@
     <title>Resultado Geral</title>
     <link rel="stylesheet" type="text/css" href="bootstrap.css">
     <link rel="stylesheet" type="text/css" href="site.css">
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="bootstrap.min.js"></script>
 </head>
 <body>
     <div class="centered">
@@ -20,16 +22,18 @@
                     <thead>
                         <tr>
                             <th>Manutenibilidade</th>
-                            <th>Complexidade Ciclomática</th>
+                            <th>Complexidade Ciclomática Média</th>
+                            <th>Complexidade Ciclomática Máxima</th>
                             <th>Acoplamento</th>
                             <th>Herança</th>
-                            <th>Linhas de código(IL)</th>
+                            <th>Linhas de código</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>@Model.Manutenibilidade</td>
-                            <td>@(Model.CC.ToString("P"))</td>
+                            <td>@Model.MediaComplexidadeCiclomatica</td>
+                            <td>@Model.MediaComplexidadeCiclomatica</td>
                             <td>@Model.Acoplamento.ToString("P")</td>
                             <td>@Model.ProfuDeHeranca.ToString("N0")</td>
                             <td>@(Model.LinhasDeCodigo.ToString("N0"))</td>
@@ -62,6 +66,34 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+        <div>
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne" class="">
+                                Collapsible Group Item #1
+                            </a>
+                            <span class="badge">14</span>
+                        </h4>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne" aria-expanded="true">
+                        <div class="panel-body">
+                            Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h2>TypesLinesOfCode</h2>
+            <ul>
+                @foreach (string nm in Model.TypesLinesOfCode)
+                {
+                    <li>@nm</li>
+                }
+            </ul>
         </div>
         <div>
             <h2>Métodos ruins (@Model.MetodosRuins.Count/@Model.TotalDeMetodos => @Model.PercentualDeMetodosRuins.ToString("P"))</h2>

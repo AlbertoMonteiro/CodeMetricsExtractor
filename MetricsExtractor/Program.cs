@@ -9,10 +9,9 @@ using System.Threading.Tasks;
 using ArchiMetrics.Analysis;
 using ArchiMetrics.Common;
 using ArchiMetrics.Common.Metrics;
+using MetricsExtractor.Custom;
 using MetricsExtractor.ReportTemplate;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace MetricsExtractor
 {
@@ -33,9 +32,11 @@ namespace MetricsExtractor
 
             var runCodeMetrics = RunCodeMetrics(metricConfiguration.Solution, metricConfiguration.IgnoredProjects);
             runCodeMetrics.Wait();
-            var namespaceMetrics = runCodeMetrics.Result;
+            var ignoredNamespaces = metricConfiguration.IgnoredNamespaces ?? Enumerable.Empty<string>();
+            var namespaceMetrics = runCodeMetrics.Result.Where(nm => !ignoredNamespaces.Contains(nm.Name)).ToList();
 
-            var types = namespaceMetrics.SelectMany(x => x.TypeMetrics).ToList();
+            System.Diagnostics.Debugger.Launch();
+            var types = namespaceMetrics.SelectMany(x => x.TypeMetrics, (nm, t) => new TypeMetricWithNamespace(t).WithNamespace(nm.Name)).Distinct().ToList();
 
             const int MAX_LINES_OF_CODE_ON_METHOD = 30;
 
@@ -43,11 +44,9 @@ namespace MetricsExtractor
 
             var metodosRuins = GetMetodosRuins(metodos, MAX_LINES_OF_CODE_ON_METHOD);
 
-            var resultadoGeral = CreateEstadoDoProjeto(types, metodosRuins, metodos.Count);
+            var resultadoGeral = CreateEstadoDoProjeto(types, metodosRuins, metodos.Count, namespaceMetrics);
 
-            var classesGroupedByRank = GetClassesGroupedByRank(types);
-
-            resultadoGeral.TotalDeClassesPorRank = classesGroupedByRank;
+            resultadoGeral.TotalDeClassesPorRank = GetClassesGroupedByRank(types);
 
             var reportPath = GenerateReport(resultadoGeral, metricConfiguration.SolutionDirectory);
 
@@ -63,7 +62,8 @@ namespace MetricsExtractor
 
             var reportTemplateFactory = new ReportTemplateFactory();
             var report = reportTemplateFactory.GetReport(resultadoGeral);
-            var list = Directory.GetFiles(Path.Combine(ApplicationPath, "ReportTemplate"), "*.css").ToList();
+            var list = new[] { "*.css", "*.js" }.SelectMany(ext => Directory.GetFiles(Path.Combine(ApplicationPath, "ReportTemplate"), ext)).ToList();
+            
 
             Directory.CreateDirectory(reportDirectory);
             using (var zipArchive = new ZipArchive(File.OpenWrite(reportPath), ZipArchiveMode.Create))
@@ -89,7 +89,7 @@ namespace MetricsExtractor
             return reportPath;
         }
 
-        private static Dictionary<ClassRank, int> GetClassesGroupedByRank(List<ITypeMetric> types)
+        private static Dictionary<ClassRank, int> GetClassesGroupedByRank(List<TypeMetricWithNamespace> types)
         {
             var classesGroupedByRank = new Dictionary<ClassRank, int>();
             ClassRanks.ForEach(c => classesGroupedByRank.Add(c, 0));
@@ -99,32 +99,34 @@ namespace MetricsExtractor
             return classesGroupedByRank;
         }
 
-        private static EstadoDoProjeto CreateEstadoDoProjeto(List<ITypeMetric> modules, List<MetodoRuim> metodosRuins, int totalDeMetodos)
+        private static EstadoDoProjeto CreateEstadoDoProjeto(List<TypeMetricWithNamespace> types, List<MetodoRuim> metodosRuins, int totalDeMetodos, IEnumerable<INamespaceMetric> namespaceMetrics)
         {
             var resultadoGeral = new EstadoDoProjeto
             {
-                Manutenibilidade = (int)modules.Average(x => x.MaintainabilityIndex),
-                CCAbsoluto = modules.Average(x => x.CyclomaticComplexity),
-                LinhasDeCodigo = modules.Sum(x => x.LinesOfCode),
-                AcoplamentoAbsoluto = modules.Average(x => x.ClassCoupling),
-                ProfuDeHeranca = modules.Average(x => x.DepthOfInheritance),
+                Manutenibilidade = (int)types.Average(x => x.MaintainabilityIndex),
+                MediaComplexidadeCiclomatica = types.Average(x => x.CyclomaticComplexity),
+                MaiorComplexidadeCiclomatica = types.Max(x => x.CyclomaticComplexity),
+                LinhasDeCodigo = types.Sum(x => x.SourceLinesOfCode),
+                AcoplamentoAbsoluto = types.Average(x => x.ClassCoupling),
+                ProfuDeHeranca = types.Average(x => x.DepthOfInheritance),
                 MetodosRuins = metodosRuins,
-                TotalDeMetodos = totalDeMetodos
+                TotalDeMetodos = totalDeMetodos,
+                TypesLinesOfCode = types.OrderByDescending(x => x.SourceLinesOfCode).ToList()
             };
             return resultadoGeral;
         }
 
-        private static List<MetodoRuim> GetMetodosRuins(List<MetodoComTipo> metodos, int MAX_LINES_OF_CODE_ON_METHOD)
+        private static List<MetodoRuim> GetMetodosRuins(List<MetodoComTipo> metodos, int maxLinesOfCodeOnMethod)
         {
             var metodosRuins = metodos
-                //.Where(x => (x.Metodo.LinesOfCode >= MAX_LINES_OF_CODE_ON_METHOD) || (x.Metodo.CyclomaticComplexity >= 10))
+                .Where(x => (x.Metodo.SourceLinesOfCode >= maxLinesOfCodeOnMethod) || (x.Metodo.CyclomaticComplexity >= 10))
                 .Select(x => new MetodoRuim
                 {
                     ClassName = x.Tipo.Name,
                     NomeMetodo = x.Metodo.Name,
                     Complexidade = x.Metodo.CyclomaticComplexity,
                     Manutenibilidade = x.Metodo.MaintainabilityIndex,
-                    QuantidadeDeLinhas = x.Metodo.LinesOfCode,
+                    QuantidadeDeLinhas = x.Metodo.SourceLinesOfCode,
                 })
                 .OrderByDescending(x => x.QuantidadeDeLinhas).ThenByDescending(x => x.Complexidade)
                 .ToList();
@@ -138,42 +140,32 @@ namespace MetricsExtractor
             var solution = await solutionProvider.Get(solutionPath);
             Console.WriteLine("Solution loaded");
 
-            var projects = solution.Projects.Where(p => !ignoredProjects.Contains(p.Name)).Take(6).ToList();
-            var elementAt = projects
-                .SelectMany(p => p.Documents)
-                .Where(d => d.Name.Contains("EmpresaService"))
-                .Select(x => x.GetSyntaxRootAsync());
-
-            var nodes = await Task.WhenAll(elementAt);
-            var syntaxNodes = nodes.SelectMany(syntaxNode => syntaxNode.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList());
-            foreach (var syntaxOneNode in syntaxNodes)
-            {
-                var sourceText = syntaxOneNode.GetText();
-                var s = sourceText.ToString();
-                var textLineCollection = sourceText.Lines.Count(l => l.Span.Length > 0);
-                Console.WriteLine(textLineCollection);
-            }
-
+            var projects = solution.Projects.Where(p => !ignoredProjects.Contains(p.Name)).ToList();
+            
             Console.WriteLine("Loading metrics, wait it may take a while.");
-            var metricsCalculator = new CodeMetricsCalculator();
-            var metrics = new List<INamespaceMetric>();
-            var calculateTasks = projects.Select(async p =>
+            List<INamespaceMetric> metrics  = new List<INamespaceMetric>();
+            foreach (var project in projects)
             {
-                using (new TimerMeasure(string.Format("Loading metrics from project {0}", p.Name), string.Format("{0} metrics loaded", p.Name)))
+                using (new TimerMeasure(string.Format("Loading metrics from project {0}", project.Name), string.Format("{0} metrics loaded", project.Name)))
                 {
-                    var namespaceMetrics = await metricsCalculator.Calculate(p, solution);
-                    return namespaceMetrics;
+                    var namespaceMetrics = await CreateTask(project, solution);
+                    metrics.AddRange(namespaceMetrics); 
                 }
-            });
-            metrics = (await Task.WhenAll(calculateTasks)).SelectMany(nm => nm).ToList();
+            }
             return metrics;
         }
 
-        private static IEnumerable<ClassRanking> CreateClassesRank(List<ITypeMetric> types)
+        private static Task<IEnumerable<INamespaceMetric>> CreateTask(Project p, Solution solution)
+        {
+            var metricsCalculator = new CodeMetricsCalculator();
+            return metricsCalculator.Calculate(p, solution);
+        }
+
+        private static IEnumerable<TypeMetricWithNamespace> CreateClassesRank(List<TypeMetricWithNamespace> types)
         {
             return from type in types
                    let maintainabilityIndex = type.MaintainabilityIndex
-                   select new ClassRanking(type.Name, ClassRanks.FirstOrDefault(r => (int)r >= maintainabilityIndex));
+                   select type.WithRank(ClassRanks.FirstOrDefault(r => (int)r >= maintainabilityIndex));
         }
     }
 }

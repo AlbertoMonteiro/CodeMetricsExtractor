@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MetricsExtractor</RootNamespace>
     <AssemblyName>MetricsExtractor</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,14 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ArchiMetrics.Analysis, Version=0.14.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ArchiMetrics.Analysis.0.14.1.0-beta\lib\Net45\ArchiMetrics.Analysis.dll</HintPath>
-    </Reference>
-    <Reference Include="ArchiMetrics.Common, Version=0.14.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ArchiMetrics.Analysis.0.14.1.0-beta\lib\Net45\ArchiMetrics.Common.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CodeAnalysis">
       <HintPath>..\packages\Microsoft.CodeAnalysis.Common.1.0.0.0-beta2\lib\net45\Microsoft.CodeAnalysis.dll</HintPath>
     </Reference>
@@ -104,9 +97,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Custom\TypeMetricWithNamespace.cs" />
     <Compile Include="TimerMeasure.cs" />
     <Compile Include="ClassRank.cs" />
-    <Compile Include="ClassRanking.cs" />
     <Compile Include="DashedParameterSerializer.cs" />
     <Compile Include="EstadoDoProjeto.cs" />
     <Compile Include="MetodoComTipo.cs" />
@@ -128,6 +121,21 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ReportTemplate\site.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ArchiMetrics\ArchiMetrics.Analysis\ArchiMetrics.Analysis.csproj">
+      <Project>{67478efb-3e11-4459-b1ce-47fe37f1f968}</Project>
+      <Name>ArchiMetrics.Analysis</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ArchiMetrics\ArchiMetrics.Common\ArchiMetrics.Common.csproj">
+      <Project>{d8be9d36-ec03-4eee-91da-f9d8c9fd11d2}</Project>
+      <Name>ArchiMetrics.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReportTemplate\bootstrap.min.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

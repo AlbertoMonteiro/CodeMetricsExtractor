@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using MetricsExtractor.Custom;
 
 namespace MetricsExtractor
 {
@@ -13,9 +14,9 @@ namespace MetricsExtractor
 
         public double PercentualDeMetodosRuins { get { return MetodosRuins.Count / (double)TotalDeMetodos; } }
 
-        public double CCAbsoluto { get; set; }
-
-        public double CC { get { return CCAbsoluto / LinhasDeCodigo; } }
+        public double MediaComplexidadeCiclomatica { get; set; }
+        
+        public int MaiorComplexidadeCiclomatica { get; set; }
 
         public double LinhasDeCodigo { get; set; }
 
@@ -26,6 +27,10 @@ namespace MetricsExtractor
         public double ProfuDeHeranca { get; set; }
 
         public Dictionary<ClassRank, int> TotalDeClassesPorRank { get; set; }
+
+        public IEnumerable<string> Namespaces { get; set; }
+
+        public IList<TypeMetricWithNamespace> TypesLinesOfCode { get; set; }
 
         public override string ToString()
         {
