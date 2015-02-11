@@ -12,6 +12,7 @@ using ArchiMetrics.Common.Metrics;
 using MetricsExtractor.Custom;
 using MetricsExtractor.ReportTemplate;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Options;
 
 namespace MetricsExtractor
 {
@@ -137,7 +138,7 @@ namespace MetricsExtractor
             Console.WriteLine("Solution loaded");
 
             var projects = solution.Projects.Where(p => !ignoredProjects.Contains(p.Name)).ToList();
-            
+
             Console.WriteLine("Loading metrics, wait it may take a while.");
             var metrics  = new List<INamespaceMetric>();
             foreach (var project in projects)

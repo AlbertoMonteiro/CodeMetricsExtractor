@@ -114,12 +114,12 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ReportTemplate\Index.cshtml">
+    <Content Include="ReportTemplate\Index.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReportTemplate\site.css">
+    </Content>
+    <Content Include="ReportTemplate\site.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ArchiMetrics\ArchiMetrics.Analysis\ArchiMetrics.Analysis.csproj">
