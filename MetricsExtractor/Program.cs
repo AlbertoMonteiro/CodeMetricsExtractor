@@ -104,7 +104,6 @@ namespace MetricsExtractor
             {
                 Manutenibilidade = (int)types.Average(x => x.MaintainabilityIndex),
                 LinhasDeCodigo = types.Sum(x => x.SourceLinesOfCode),
-                AcoplamentoAbsoluto = types.Average(x => x.ClassCoupling),
                 ProfuDeHeranca = types.Average(x => x.DepthOfInheritance),
                 MetodosRuins = metodosRuins,
                 TotalDeMetodos = totalDeMetodos,

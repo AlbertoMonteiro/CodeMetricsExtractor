@@ -24,10 +24,6 @@ namespace MetricsExtractor
 
         public double LinhasDeCodigo { get; set; }
 
-        public double AcoplamentoAbsoluto { get; set; }
-
-        public double Acoplamento { get { return AcoplamentoAbsoluto / LinhasDeCodigo; } }
-
         public double ProfuDeHeranca { get; set; }
 
         public Dictionary<ClassRank, int> TotalDeClassesPorRank { get; set; }
