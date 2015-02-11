@@ -14,9 +14,13 @@ namespace MetricsExtractor
 
         public double PercentualDeMetodosRuins { get { return MetodosRuins.Count / (double)TotalDeMetodos; } }
 
-        public double MediaComplexidadeCiclomatica { get; set; }
-        
-        public int MaiorComplexidadeCiclomatica { get; set; }
+        public double PercentualDeMetodosRuinsComplexidadeCiclomatica { get { return MetodosComAltaComplexidadeClicomatica / (double)TotalDeMetodos; } }
+
+        public int MetodosComAltaComplexidadeClicomatica { get { return MetodosRuins.Count(m => m.Complexidade > 10); } }
+
+        public double PercentualDeMetodosGrandes { get { return MetodosGrandes / (double)TotalDeMetodos; } }
+
+        public int MetodosGrandes { get { return MetodosRuins.Count(m => m.QuantidadeDeLinhas > 30); } }
 
         public double LinhasDeCodigo { get; set; }
 

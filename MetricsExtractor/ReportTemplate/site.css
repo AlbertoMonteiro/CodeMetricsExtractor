@@ -1,11 +1,12 @@
 .centered {
-	width: 1280px;
-	margin: auto;
-	margin-top: 50px;
+    min-width: 1280px;
+    margin: auto;
+    margin-top: 50px;
+    max-width: 90%;
 }
 
 .texto-centralizado {
-	text-align: center;
+    text-align: center;
 }
 
 .barra-de-progresso {
@@ -20,4 +21,8 @@
     -ms-transition: width 1s ease-in-out;
     transition: width 1s ease-in-out;
     width: 0%;
+}
+
+.cor-azul {
+    color: rgb(51, 122, 183);
 }

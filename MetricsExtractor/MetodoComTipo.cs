@@ -1,10 +1,11 @@
 using ArchiMetrics.Common.Metrics;
+using MetricsExtractor.Custom;
 
 namespace MetricsExtractor
 {
     internal class MetodoComTipo
     {
-        public ITypeMetric Tipo { get; set; }
+        public TypeMetricWithNamespace Tipo { get; set; }
 
         public IMemberMetric Metodo { get; set; }
     }

@@ -35,7 +35,6 @@ namespace MetricsExtractor
             var ignoredNamespaces = metricConfiguration.IgnoredNamespaces ?? Enumerable.Empty<string>();
             var namespaceMetrics = runCodeMetrics.Result.Where(nm => !ignoredNamespaces.Contains(nm.Name)).ToList();
 
-            System.Diagnostics.Debugger.Launch();
             var types = namespaceMetrics.SelectMany(x => x.TypeMetrics, (nm, t) => new TypeMetricWithNamespace(t).WithNamespace(nm.Name)).Distinct().ToList();
 
             const int MAX_LINES_OF_CODE_ON_METHOD = 30;
@@ -104,8 +103,6 @@ namespace MetricsExtractor
             var resultadoGeral = new EstadoDoProjeto
             {
                 Manutenibilidade = (int)types.Average(x => x.MaintainabilityIndex),
-                MediaComplexidadeCiclomatica = types.Average(x => x.CyclomaticComplexity),
-                MaiorComplexidadeCiclomatica = types.Max(x => x.CyclomaticComplexity),
                 LinhasDeCodigo = types.Sum(x => x.SourceLinesOfCode),
                 AcoplamentoAbsoluto = types.Average(x => x.ClassCoupling),
                 ProfuDeHeranca = types.Average(x => x.DepthOfInheritance),
@@ -122,7 +119,7 @@ namespace MetricsExtractor
                 .Where(x => (x.Metodo.SourceLinesOfCode >= maxLinesOfCodeOnMethod) || (x.Metodo.CyclomaticComplexity >= 10))
                 .Select(x => new MetodoRuim
                 {
-                    ClassName = x.Tipo.Name,
+                    ClassName = x.Tipo.FullName,
                     NomeMetodo = x.Metodo.Name,
                     Complexidade = x.Metodo.CyclomaticComplexity,
                     Manutenibilidade = x.Metodo.MaintainabilityIndex,
@@ -137,18 +134,18 @@ namespace MetricsExtractor
         {
             Console.WriteLine("Loading Solution");
             var solutionProvider = new SolutionProvider();
-            var solution = await solutionProvider.Get(solutionPath);
+            var solution = await solutionProvider.Get(solutionPath).ConfigureAwait(false);
             Console.WriteLine("Solution loaded");
 
             var projects = solution.Projects.Where(p => !ignoredProjects.Contains(p.Name)).ToList();
             
             Console.WriteLine("Loading metrics, wait it may take a while.");
-            List<INamespaceMetric> metrics  = new List<INamespaceMetric>();
+            var metrics  = new List<INamespaceMetric>();
             foreach (var project in projects)
             {
                 using (new TimerMeasure(string.Format("Loading metrics from project {0}", project.Name), string.Format("{0} metrics loaded", project.Name)))
                 {
-                    var namespaceMetrics = await CreateTask(project, solution);
+                    var namespaceMetrics = await CreateTask(project, solution).ConfigureAwait(false);
                     metrics.AddRange(namespaceMetrics); 
                 }
             }

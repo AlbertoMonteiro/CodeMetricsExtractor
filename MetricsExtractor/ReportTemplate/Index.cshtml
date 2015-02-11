@@ -3,10 +3,11 @@
 <html>
 <head>
     <title>Resultado Geral</title>
-    <link rel="stylesheet" type="text/css" href="bootstrap.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
     <link rel="stylesheet" type="text/css" href="site.css">
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-    <script src="bootstrap.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
 </head>
 <body>
     <div class="centered">
@@ -21,10 +22,9 @@
                 <table class="table table-striped table-hover table-bordered">
                     <thead>
                         <tr>
-                            <th>Manutenibilidade</th>
-                            <th>Complexidade Ciclomática Média</th>
-                            <th>Complexidade Ciclomática Máxima</th>
-                            <th>Acoplamento</th>
+                            <th>Manutenibilidade <span class="glyphicon glyphicon-exclamation-sign cor-azul" data-original-title="Número de 0-100" data-toggle="tooltip" aria-hidden="true"></span></th>
+                            <th>Métodos com alta Comp. Ciclomática <span class="glyphicon glyphicon-exclamation-sign cor-azul" data-original-title="São considerados métodos que possuem alta complexidade ciclomática aqueles que tem esse valor maior que 10" data-toggle="tooltip" aria-hidden="true"></span></th>
+                            <th>Métodos grandes <span class="glyphicon glyphicon-exclamation-sign cor-azul" data-original-title="São considerados métodos grandes aqueles que tem mais de 30 linhas, excluindo comentários" data-toggle="tooltip" aria-hidden="true"></span></th>
                             <th>Herança</th>
                             <th>Linhas de código</th>
                         </tr>
@@ -32,11 +32,10 @@
                     <tbody>
                         <tr>
                             <td>@Model.Manutenibilidade</td>
-                            <td>@Model.MediaComplexidadeCiclomatica</td>
-                            <td>@Model.MediaComplexidadeCiclomatica</td>
-                            <td>@Model.Acoplamento.ToString("P")</td>
+                            <td>@Model.MetodosComAltaComplexidadeClicomatica/@Model.TotalDeMetodos => @(Model.PercentualDeMetodosRuinsComplexidadeCiclomatica.ToString("P"))</td>
+                            <td>@Model.MetodosGrandes/@Model.TotalDeMetodos => @(Model.PercentualDeMetodosGrandes.ToString("P"))</td>
                             <td>@Model.ProfuDeHeranca.ToString("N0")</td>
-                            <td>@(Model.LinhasDeCodigo.ToString("N0"))</td>
+                            <td>@Model.LinhasDeCodigo.ToString("N0")</td>
                         </tr>
                     </tbody>
                 </table>
@@ -67,34 +66,27 @@
                 </tbody>
             </table>
         </div>
-        <div>
-            <div class="panel-group" role="tablist" aria-multiselectable="true">
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne" class="">
-                                Collapsible Group Item #1
-                            </a>
-                            <span class="badge">14</span>
-                        </h4>
-                    </div>
-                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne" aria-expanded="true">
-                        <div class="panel-body">
-                            Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+        @*
+            <div>
+                <div class="panel-group" role="tablist" aria-multiselectable="true">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne" class="">
+                                    Collapsible Group Item #1
+                                </a>
+                                <span class="badge">14</span>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne" aria-expanded="true">
+                            <div class="panel-body">
+                                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div>
-            <h2>TypesLinesOfCode</h2>
-            <ul>
-                @foreach (string nm in Model.TypesLinesOfCode)
-                {
-                    <li>@nm</li>
-                }
-            </ul>
-        </div>
+        *@
         <div>
             <h2>Métodos ruins (@Model.MetodosRuins.Count/@Model.TotalDeMetodos => @Model.PercentualDeMetodosRuins.ToString("P"))</h2>
             <table class="table table-striped table-hover ">
@@ -102,8 +94,9 @@
                     <tr>
                         <th>Classe</th>
                         <th>Nome do método</th>
-                        <th>Quantidade de linhas(IL)</th>
-                        <th>Complexidade Ciclomática</th>
+                        <th>SLOC <span class="glyphicon glyphicon-exclamation-sign cor-azul" data-original-title="Linhas de Código(Source Lines Of Code)" data-toggle="tooltip" aria-hidden="true"></span></th>
+                        <th>Comp. Ciclomática</th>
+                        <th>Manutenibilidade</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -114,6 +107,7 @@
                             <td>@metodoRuim.NomeMetodo</td>
                             <td>@metodoRuim.QuantidadeDeLinhas</td>
                             <td>@metodoRuim.Complexidade</td>
+                            <td>@metodoRuim.Manutenibilidade.ToString("N0")</td>
                         </tr>
                     }
                 </tbody>
@@ -122,9 +116,10 @@
         </div>
     </div>
     <script type="text/javascript">
-        setTimeout(function () {
-            document.querySelector(".progress-bar-success").style.width = "@(Model.Manutenibilidade)%";
-        }, 100);
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+            $(".progress-bar-success").css("width","@(Model.Manutenibilidade)%");
+        });
     </script>
 </body>
 </html>
