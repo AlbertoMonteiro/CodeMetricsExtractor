@@ -1,5 +1,9 @@
-﻿@using MetricsExtractor
+﻿@using System.Linq
+@using MetricsExtractor
 @model MetricsExtractor.EstadoDoProjeto
+@{
+    var md = Model as MetricsExtractor.EstadoDoProjeto;
+}
 <html>
 <head>
     <title>Resultado Geral</title>
@@ -31,11 +35,11 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>@Model.Manutenibilidade</td>
-                            <td>@Model.MetodosComAltaComplexidadeClicomatica/@Model.TotalDeMetodos => @(Model.PercentualDeMetodosRuinsComplexidadeCiclomatica.ToString("P"))</td>
-                            <td>@Model.MetodosGrandes/@Model.TotalDeMetodos => @(Model.PercentualDeMetodosGrandes.ToString("P"))</td>
-                            <td>@Model.ProfuDeHeranca.ToString("N0")</td>
-                            <td>@Model.LinhasDeCodigo.ToString("N0")</td>
+                            <td>@md.Manutenibilidade</td>
+                            <td>@md.MetodosComAltaComplexidadeClicomatica/@md.TotalDeMetodos => @(md.PercentualDeMetodosRuinsComplexidadeCiclomatica.ToString("P"))</td>
+                            <td>@md.MetodosGrandes/@md.TotalDeMetodos => @(md.PercentualDeMetodosGrandes.ToString("P"))</td>
+                            <td>@md.ProfuDeHeranca.ToString("N0")</td>
+                            <td>@md.LinhasDeCodigo.ToString("N0")</td>
                         </tr>
                     </tbody>
                 </table>
@@ -56,69 +60,85 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>@Model.TotalDeClassesPorRank[ClassRank.A]</td>
-                        <td>@Model.TotalDeClassesPorRank[ClassRank.B]</td>
-                        <td>@Model.TotalDeClassesPorRank[ClassRank.C]</td>
-                        <td>@Model.TotalDeClassesPorRank[ClassRank.D]</td>
-                        <td>@Model.TotalDeClassesPorRank[ClassRank.E]</td>
-                        <td>@Model.TotalDeClassesPorRank[ClassRank.F]</td>
+                        <td>@md.TotalDeClassesPorRank[ClassRank.A]</td>
+                        <td>@md.TotalDeClassesPorRank[ClassRank.B]</td>
+                        <td>@md.TotalDeClassesPorRank[ClassRank.C]</td>
+                        <td>@md.TotalDeClassesPorRank[ClassRank.D]</td>
+                        <td>@md.TotalDeClassesPorRank[ClassRank.E]</td>
+                        <td>@md.TotalDeClassesPorRank[ClassRank.F]</td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        @*
-            <div>
-                <div class="panel-group" role="tablist" aria-multiselectable="true">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab">
-                            <h4 class="panel-title">
-                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne" class="">
-                                    Collapsible Group Item #1
-                                </a>
-                                <span class="badge">14</span>
-                            </h4>
-                        </div>
-                        <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne" aria-expanded="true">
-                            <div class="panel-body">
-                                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-                            </div>
+        <div>
+            <div class="panel-group" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingOne">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                Métodos ruins (@md.MetodosRuins.Count/@md.TotalDeMetodos => @md.PercentualDeMetodosRuins.ToString("P"))
+                            </a>
+                            <span class="badge">@md.PercentualDeMetodosRuins.ToString("P")</span>
+                        </h4>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne" aria-expanded="false">
+                        <div class="panel-body">
+                            <table class="table table-striped table-hover ">
+                                <thead>
+                                    <tr>
+                                        <th>Classe</th>
+                                        <th>Nome do método</th>
+                                        <th>SLOC <span class="glyphicon glyphicon-exclamation-sign cor-azul" data-original-title="Linhas de Código(Source Lines Of Code)" data-toggle="tooltip" aria-hidden="true"></span></th>
+                                        <th>Comp. Ciclomática</th>
+                                        <th>Manutenibilidade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (MetodoRuim metodoRuim in md.MetodosRuins)
+                                    {
+                                        <tr>
+                                            <td>@metodoRuim.ClassName</td>
+                                            <td>@metodoRuim.NomeMetodo</td>
+                                            <td>@metodoRuim.QuantidadeDeLinhas</td>
+                                            <td>@metodoRuim.Complexidade</td>
+                                            <td>@metodoRuim.Manutenibilidade.ToString("N0")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
+                @foreach (var type in md.TypesWithMetrics.Where(t => t.Value.Count > 0))
+                {
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="heading@(type.Key)">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapse@(type.Key)" aria-expanded="true" aria-controls="collapse@(type.Key)">
+                                    Classes com saúde: @type.Key
+                                </a>
+                                <span class="badge">@type.Value.Count</span>
+                            </h4>
+                        </div>
+                        <div id="collapse@(type.Key)" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading@(type.Key)" aria-expanded="false">
+                            <div class="panel-body">
+                                <ul>
+                                    @foreach (var typeWithMetric in type.Value)
+                                    {
+                                        <li>@typeWithMetric.FullName</li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
-        *@
-        <div>
-            <h2>Métodos ruins (@Model.MetodosRuins.Count/@Model.TotalDeMetodos => @Model.PercentualDeMetodosRuins.ToString("P"))</h2>
-            <table class="table table-striped table-hover ">
-                <thead>
-                    <tr>
-                        <th>Classe</th>
-                        <th>Nome do método</th>
-                        <th>SLOC <span class="glyphicon glyphicon-exclamation-sign cor-azul" data-original-title="Linhas de Código(Source Lines Of Code)" data-toggle="tooltip" aria-hidden="true"></span></th>
-                        <th>Comp. Ciclomática</th>
-                        <th>Manutenibilidade</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (MetodoRuim metodoRuim in Model.MetodosRuins)
-                    {
-                        <tr>
-                            <td>@metodoRuim.ClassName</td>
-                            <td>@metodoRuim.NomeMetodo</td>
-                            <td>@metodoRuim.QuantidadeDeLinhas</td>
-                            <td>@metodoRuim.Complexidade</td>
-                            <td>@metodoRuim.Manutenibilidade.ToString("N0")</td>
-                        </tr>
-                    }
-                </tbody>
-
-            </table>
         </div>
     </div>
     <script type="text/javascript">
         $(function () {
             $('[data-toggle="tooltip"]').tooltip();
-            $(".progress-bar-success").css("width","@(Model.Manutenibilidade)%");
+            $(".progress-bar-success").css("width", "@(md.Manutenibilidade)%");
         });
     </script>
 </body>

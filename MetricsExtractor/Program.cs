@@ -46,10 +46,9 @@ namespace MetricsExtractor
 
             var resultadoGeral = CreateEstadoDoProjeto(types, metodosRuins, metodos.Count, namespaceMetrics);
 
-            resultadoGeral.TotalDeClassesPorRank = GetClassesGroupedByRank(types);
-
             var reportPath = GenerateReport(resultadoGeral, metricConfiguration.SolutionDirectory);
 
+            Console.WriteLine("Report generated in: {0}", reportPath);
 #if DEBUG
             Process.Start(reportPath);
 #endif
@@ -89,13 +88,13 @@ namespace MetricsExtractor
             return reportPath;
         }
 
-        private static Dictionary<ClassRank, int> GetClassesGroupedByRank(List<TypeMetricWithNamespace> types)
+        private static Dictionary<ClassRank, List<TypeMetricWithNamespace>> GetClassesGroupedByRank(List<TypeMetricWithNamespace> types)
         {
-            var classesGroupedByRank = new Dictionary<ClassRank, int>();
-            ClassRanks.ForEach(c => classesGroupedByRank.Add(c, 0));
+            var classesGroupedByRank = new Dictionary<ClassRank, List<TypeMetricWithNamespace>>();
+            ClassRanks.ForEach(c => classesGroupedByRank.Add(c, new List<TypeMetricWithNamespace>()));
             var classRankings = CreateClassesRank(types).ToList();
             foreach (var group in classRankings.GroupBy(c => c.Rank))
-                classesGroupedByRank[@group.Key] = @group.Count();
+                classesGroupedByRank[@group.Key].AddRange(@group);
             return classesGroupedByRank;
         }
 
@@ -108,7 +107,7 @@ namespace MetricsExtractor
                 ProfuDeHeranca = types.Average(x => x.DepthOfInheritance),
                 MetodosRuins = metodosRuins,
                 TotalDeMetodos = totalDeMetodos,
-                TypesLinesOfCode = types.OrderByDescending(x => x.SourceLinesOfCode).ToList()
+                TypesWithMetrics = GetClassesGroupedByRank(types)
             };
             return resultadoGeral;
         }
@@ -140,16 +139,21 @@ namespace MetricsExtractor
             var projects = solution.Projects.Where(p => !ignoredProjects.Contains(p.Name)).ToList();
 
             Console.WriteLine("Loading metrics, wait it may take a while.");
-            var metrics  = new List<INamespaceMetric>();
-            foreach (var project in projects)
+
+            var tasks = projects.Select(async project =>
             {
+                var metrics = new List<INamespaceMetric>();
                 using (new TimerMeasure(string.Format("Loading metrics from project {0}", project.Name), string.Format("{0} metrics loaded", project.Name)))
                 {
                     var namespaceMetrics = await CreateTask(project, solution).ConfigureAwait(false);
-                    metrics.AddRange(namespaceMetrics); 
+                    metrics.AddRange(namespaceMetrics);
                 }
-            }
-            return metrics;
+                return metrics;
+            });
+
+            var nms = await Task.WhenAll(tasks).ConfigureAwait(false);
+
+            return nms.SelectMany(nm => nm);
         }
 
         private static Task<IEnumerable<INamespaceMetric>> CreateTask(Project p, Solution solution)
