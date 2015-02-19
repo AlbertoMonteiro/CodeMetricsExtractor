@@ -1,8 +1,6 @@
 Code Metrics Extractor
 ====================
 
-Is a simple tool that automate the execution of "Calculate Code Metrics for Solution" that is avaliable in Visual Studio.
-
 With Code Metrics Extractor you can see project health overview, classes health overview and bad methods.
 
 
