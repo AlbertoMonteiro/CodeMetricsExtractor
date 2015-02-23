@@ -30,7 +30,7 @@ MetricsExtractor.exe -solution SolutionPath.sln
 Aditional parameters:
 
 #### IgnoredProjects 
-You can list projets in solution that you want to ignore, you must split them by ";"
+You can list projets in solution that you want to ignore, you must split them by "**;**"
 
 Example:
 
