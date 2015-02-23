@@ -32,4 +32,5 @@ Aditional parameters:
 IgnoredProjects => You can list projets in solution that you want to ignore, you must split them by ";"
 
 Example:
+
 ````metricsextractor.exe -solution solutionpath.sln -ignoredprojects "Project.Core.Tests;Project.Data.Tests;Project.Web.Tests"````
