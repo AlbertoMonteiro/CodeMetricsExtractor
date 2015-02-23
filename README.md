@@ -21,3 +21,13 @@ Using project
 You must install
 
 [Microsoft Build Tools 2015 Preview](http://www.microsoft.com/en-us/download/details.aspx?id=44931)
+
+
+````
+MetricsExtractor.exe -solution SolutionPath.sln
+````
+
+Aditional parameters:
+
+IgnoredProjects => You can list projets in solution that you want to ignore, you must split them by ";"
+Example: ````metricsextractor.exe -solution solutionpath.sln -ignoredprojects "Project.Core.Tests;Project.Data.Tests;Project.Web.Tests"````
