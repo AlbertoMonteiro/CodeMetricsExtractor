@@ -11,7 +11,6 @@ using ArchiMetrics.Common;
 using ArchiMetrics.Common.Metrics;
 using MetricsExtractor.Custom;
 using MetricsExtractor.ReportTemplate;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Options;
 
 namespace MetricsExtractor
@@ -33,6 +32,7 @@ namespace MetricsExtractor
 
             var runCodeMetrics = RunCodeMetrics(metricConfiguration.Solution, metricConfiguration.IgnoredProjects);
             runCodeMetrics.Wait();
+            Console.WriteLine("All projects measure, creating report");
             var ignoredNamespaces = metricConfiguration.IgnoredNamespaces ?? Enumerable.Empty<string>();
             var namespaceMetrics = runCodeMetrics.Result.Where(nm => !ignoredNamespaces.Contains(nm.Name)).ToList();
 
@@ -62,7 +62,7 @@ namespace MetricsExtractor
             var reportTemplateFactory = new ReportTemplateFactory();
             var report = reportTemplateFactory.GetReport(resultadoGeral);
             var list = new[] { "*.css", "*.js" }.SelectMany(ext => Directory.GetFiles(Path.Combine(ApplicationPath, "ReportTemplate"), ext)).ToList();
-            
+
 
             Directory.CreateDirectory(reportDirectory);
             using (var zipArchive = new ZipArchive(File.OpenWrite(reportPath), ZipArchiveMode.Create))
@@ -140,26 +140,15 @@ namespace MetricsExtractor
 
             Console.WriteLine("Loading metrics, wait it may take a while.");
 
-            var tasks = projects.Select(async project =>
-            {
-                var metrics = new List<INamespaceMetric>();
-                using (new TimerMeasure(string.Format("Loading metrics from project {0}", project.Name), string.Format("{0} metrics loaded", project.Name)))
-                {
-                    var namespaceMetrics = await CreateTask(project, solution).ConfigureAwait(false);
-                    metrics.AddRange(namespaceMetrics);
-                }
-                return metrics;
-            });
-
-            var nms = await Task.WhenAll(tasks).ConfigureAwait(false);
-
-            return nms.SelectMany(nm => nm);
-        }
-
-        private static Task<IEnumerable<INamespaceMetric>> CreateTask(Project p, Solution solution)
-        {
+            var metrics = new List<IEnumerable<INamespaceMetric>>();
             var metricsCalculator = new CodeMetricsCalculator();
-            return metricsCalculator.Calculate(p, solution);
+            foreach (var project in projects)
+            {
+                var calculate = await metricsCalculator.Calculate(project, solution);
+                metrics.Add(calculate);
+            }
+
+            return metrics.SelectMany(nm => nm);
         }
 
         private static IEnumerable<TypeMetricWithNamespace> CreateClassesRank(List<TypeMetricWithNamespace> types)
