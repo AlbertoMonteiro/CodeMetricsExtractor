@@ -37,3 +37,21 @@ Example:
 ````
 metricsextractor.exe -solution solutionpath.sln -ignoredprojects "Project.Core.Tests;Project.Data.Tests;Project.Web.Tests"
 ````
+
+#### IgnoredNamespaces 
+You can list namespaces in your application that you want to ignore, you must split them by "**;**"
+
+Example:
+
+````
+metricsextractor.exe -solution solutionpath.sln -ignorednamespaces "Namespace.Core.Tests;Namespace.Data.Migrations"
+````
+
+#### IgnoredTypes 
+You can list types in your application that you want to ignore, you must split them by "**;**"
+
+Example:
+
+````
+metricsextractor.exe -solution solutionpath.sln -ignoredtypes "Namespace.Core.Person;Namespace.Data.UnitOfWork"
+````
