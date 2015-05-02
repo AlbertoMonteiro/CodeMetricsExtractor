@@ -30,7 +30,7 @@ namespace MetricsExtractor
 
             var metricConfiguration = DashedParameterSerializer.Deserialize<MetricConfiguration>(args);
 
-            var runCodeMetrics = RunCodeMetrics(metricConfiguration.Solution, metricConfiguration.IgnoredProjects);
+            var runCodeMetrics = RunCodeMetrics(metricConfiguration);
             runCodeMetrics.Wait();
             Console.WriteLine("All projects measure, creating report");
             var ignoredNamespaces = metricConfiguration.IgnoredNamespaces ?? Enumerable.Empty<string>();
@@ -129,19 +129,23 @@ namespace MetricsExtractor
             return metodosRuins;
         }
 
-        private static async Task<IEnumerable<INamespaceMetric>> RunCodeMetrics(string solutionPath, string[] ignoredProjects)
+        private static async Task<IEnumerable<INamespaceMetric>> RunCodeMetrics(MetricConfiguration configuration)
         {
             Console.WriteLine("Loading Solution");
             var solutionProvider = new SolutionProvider();
-            var solution = await solutionProvider.Get(solutionPath).ConfigureAwait(false);
+            var solution = await solutionProvider.Get(configuration.Solution).ConfigureAwait(false);
             Console.WriteLine("Solution loaded");
 
-            var projects = solution.Projects.Where(p => !ignoredProjects.Contains(p.Name)).ToList();
+            var projects = solution.Projects.Where(p => !configuration.IgnoredProjects.Contains(p.Name)).ToList();
 
             Console.WriteLine("Loading metrics, wait it may take a while.");
 
             var metrics = new List<IEnumerable<INamespaceMetric>>();
-            var metricsCalculator = new CodeMetricsCalculator();
+            var metricsCalculator = new CodeMetricsCalculator(new CalculationConfiguration
+            {
+                NamespacesIgnored = configuration.IgnoredNamespaces,
+                TypesIgnored = configuration.IgnoredTypes
+            });
             foreach (var project in projects)
             {
                 var calculate = await metricsCalculator.Calculate(project, solution);

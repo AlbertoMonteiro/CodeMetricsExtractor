@@ -7,14 +7,16 @@ namespace MetricsExtractor
     {
         public MetricConfiguration()
         {
-        	IgnoredProjects = Enumerable.Empty<string>().ToArray();
+            IgnoredTypes = IgnoredNamespaces = IgnoredProjects = Enumerable.Empty<string>().ToArray();
         }
         public string Solution { get; set; }
 
         public string SolutionDirectory { get { return Path.GetDirectoryName(Solution); } }
 
         public string[] IgnoredProjects { get; set; }
-        
+
         public string[] IgnoredNamespaces { get; set; }
+
+        public string[] IgnoredTypes { get; set; }
     }
 }
