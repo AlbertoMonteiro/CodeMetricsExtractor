@@ -1,5 +1,6 @@
 Code Metrics Extractor
 ====================
+[![Analytics](https://ga-beacon.appspot.com/UA-63314381-2/CodeMetricsExtractor/README)](https://github.com/AlbertoMonteiro/CodeMetricsExtractor)
 
 With Code Metrics Extractor you can see project health overview, classes health overview and bad methods.
 
