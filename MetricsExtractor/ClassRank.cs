@@ -1,5 +1,8 @@
-﻿namespace MetricsExtractor
+﻿using System;
+
+namespace MetricsExtractor
 {
+    [Serializable]
     public enum ClassRank
     {
         A = 100,

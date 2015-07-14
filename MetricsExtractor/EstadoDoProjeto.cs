@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using MetricsExtractor.Custom;
 
 namespace MetricsExtractor
 {
+    [Serializable]
     public class EstadoDoProjeto
     {
         private Dictionary<ClassRank, int> totalDeClassesPorRank;

@@ -1,6 +1,8 @@
-﻿
+﻿using System;
+
 namespace MetricsExtractor
 {
+    [Serializable]
     public class MetodoRuim
     {
         public string ClassName { get; set; }

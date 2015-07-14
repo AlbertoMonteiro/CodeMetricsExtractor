@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+#if DEBUG
 using System.Diagnostics;
+#endif
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using ArchiMetrics.Analysis;
 using ArchiMetrics.Common;
 using ArchiMetrics.Common.Metrics;
 using MetricsExtractor.Custom;
 using MetricsExtractor.ReportTemplate;
-using Microsoft.CodeAnalysis.Options;
 
 namespace MetricsExtractor
 {
@@ -58,6 +60,7 @@ namespace MetricsExtractor
         {
             var reportDirectory = Path.Combine(solutionDirectory, "CodeMetricsReport");
             var reportPath = Path.Combine(reportDirectory, "CodeMetricsReport.zip");
+            var rawReportPath = Path.Combine(reportDirectory, "RawCodeMetricsReport.xml");
 
             var reportTemplateFactory = new ReportTemplateFactory();
             var report = reportTemplateFactory.GetReport(resultadoGeral);
@@ -85,6 +88,13 @@ namespace MetricsExtractor
 #endif
                 zipArchive.Dispose();
             }
+
+            using (var fileStream = File.Open(rawReportPath, FileMode.Create))
+            {
+                var xmlSerializer = new XmlSerializer(typeof(EstadoDoProjeto));
+                xmlSerializer.Serialize(fileStream, resultadoGeral);
+            }
+
             return reportPath;
         }
 
