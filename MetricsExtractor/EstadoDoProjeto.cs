@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Serialization;
 using MetricsExtractor.Custom;
 
 namespace MetricsExtractor
@@ -11,7 +12,7 @@ namespace MetricsExtractor
         private Dictionary<ClassRank, int> totalDeClassesPorRank;
         public int Manutenibilidade { get; set; }
         public int TotalDeMetodos { get; set; }
-        public IList<MetodoRuim> MetodosRuins { get; set; }
+        public List<MetodoRuim> MetodosRuins { get; set; }
 
         public double PercentualDeMetodosRuins
         {
@@ -42,6 +43,7 @@ namespace MetricsExtractor
 
         public double ProfuDeHeranca { get; set; }
 
+        [XmlIgnore]
         public Dictionary<ClassRank, int> TotalDeClassesPorRank
         {
             get
@@ -51,6 +53,7 @@ namespace MetricsExtractor
             }
         }
 
+        [XmlIgnore]
         public Dictionary<ClassRank, List<TypeMetricWithNamespace>> TypesWithMetrics { get; set; }
 
         public override string ToString()

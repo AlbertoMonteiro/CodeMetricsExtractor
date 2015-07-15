@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
+﻿using System.Collections.Generic;
 using ArchiMetrics.Common.Metrics;
 
 namespace MetricsExtractor.Custom
 {
-    [Serializable]
     public class TypeMetricWithNamespace : ITypeMetric
     {
         public TypeMetricWithNamespace(ITypeMetric typeMetric)
@@ -19,7 +16,6 @@ namespace MetricsExtractor.Custom
             }
         }
 
-        [XmlIgnore]
         public IEnumerable<ITypeCoupling> ClassCouplings { get; private set; }
 
         public int LinesOfCode { get; private set; }
@@ -32,13 +28,10 @@ namespace MetricsExtractor.Custom
 
         public string Name { get; private set; }
 
-        [XmlIgnore]
         public AccessModifierKind AccessModifier { get; private set; }
 
-        [XmlIgnore]
         public TypeMetricKind Kind { get; private set; }
 
-        [XmlIgnore]
         public IEnumerable<IMemberMetric> MemberMetrics { get; private set; }
 
         public int DepthOfInheritance { get; private set; }
@@ -54,7 +47,7 @@ namespace MetricsExtractor.Custom
         public bool IsAbstract { get; private set; }
 
         public string Namespace { get; private set; }
-        
+
         public string FullName { get { return string.Format("{0}.{1}", Namespace, Name); } }
 
         public ClassRank Rank { get; private set; }
@@ -79,7 +72,7 @@ namespace MetricsExtractor.Custom
 
             return typeMetric.FullName == FullName;
         }
-        
+
         public override int GetHashCode()
         {
             // TODO: write your implementation of GetHashCode() here
