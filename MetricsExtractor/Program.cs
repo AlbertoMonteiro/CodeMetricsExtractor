@@ -49,7 +49,7 @@ namespace MetricsExtractor
             MetricConfiguration metricConfiguration;
             try
             {
-                var arguments = new Docopt().Apply(USAGE, args, version: "CodeMetrics Extractor 2.0", optionsFirst: true);
+                var arguments = new Docopt().Apply(USAGE, args, version: "CodeMetrics Extractor 2.0");
 
                 metricConfiguration = new MetricConfiguration(arguments);
             }
