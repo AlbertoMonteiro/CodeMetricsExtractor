@@ -14,13 +14,16 @@ using ArchiMetrics.Common;
 using ArchiMetrics.Common.Metrics;
 using MetricsExtractor.Custom;
 using MetricsExtractor.ReportTemplate;
+using Microsoft.CodeAnalysis;
+using static System.IO.File;
+using static System.IO.Path;
 
 namespace MetricsExtractor
 {
     class Program
     {
         private static readonly List<ClassRank> ClassRanks = Enum.GetValues(typeof(ClassRank)).Cast<ClassRank>().ToList();
-        private static readonly string ApplicationPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        private static readonly string ApplicationPath = GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
         static void Main(string[] args)
         {
@@ -32,11 +35,13 @@ namespace MetricsExtractor
 
             var metricConfiguration = DashedParameterSerializer.Deserialize<MetricConfiguration>(args);
 
-            var runCodeMetrics = RunCodeMetrics(metricConfiguration);
-            runCodeMetrics.Wait();
-            Console.WriteLine("All projects measure, creating report");
+            var stopwatch = Stopwatch.StartNew();
+            var result = RunCodeMetrics(metricConfiguration).Result;
+            stopwatch.Stop();
+
+            Console.WriteLine($"All projects measure(Elapsed: {stopwatch.Elapsed}), creating report");
             var ignoredNamespaces = metricConfiguration.IgnoredNamespaces ?? Enumerable.Empty<string>();
-            var namespaceMetrics = runCodeMetrics.Result.Where(nm => !ignoredNamespaces.Contains(nm.Name)).ToList();
+            var namespaceMetrics = result.Where(nm => !ignoredNamespaces.Contains(nm.Name)).ToList();
 
             var types = namespaceMetrics.SelectMany(x => x.TypeMetrics, (nm, t) => new TypeMetricWithNamespace(t).WithNamespace(nm.Name)).Distinct().ToList();
 
@@ -58,24 +63,24 @@ namespace MetricsExtractor
 
         private static string GenerateReport(EstadoDoProjeto resultadoGeral, string solutionDirectory)
         {
-            var reportDirectory = Path.Combine(solutionDirectory, "CodeMetricsReport");
-            var reportPath = Path.Combine(reportDirectory, "CodeMetricsReport.zip");
-            var rawReportPath = Path.Combine(reportDirectory, "RawCodeMetricsReport.xml");
+            var reportDirectory = Combine(solutionDirectory, "CodeMetricsReport");
+            var reportPath = Combine(reportDirectory, "CodeMetricsReport.zip");
+            var rawReportPath = Combine(reportDirectory, "RawCodeMetricsReport.xml");
 
             var reportTemplateFactory = new ReportTemplateFactory();
             var report = reportTemplateFactory.GetReport(resultadoGeral);
-            var list = new[] { "*.css", "*.js" }.SelectMany(ext => Directory.GetFiles(Path.Combine(ApplicationPath, "ReportTemplate"), ext)).ToList();
+            var list = new[] { "*.css", "*.js" }.SelectMany(ext => Directory.GetFiles(Combine(ApplicationPath, "ReportTemplate"), ext)).ToList();
 
 
             Directory.CreateDirectory(reportDirectory);
-            using (var zipArchive = new ZipArchive(File.OpenWrite(reportPath), ZipArchiveMode.Create))
+            using (var zipArchive = new ZipArchive(OpenWrite(reportPath), ZipArchiveMode.Create))
             {
                 foreach (var item in list)
                 {
-                    var fileName = Path.GetFileName(item);
+                    var fileName = GetFileName(item);
                     zipArchive.CreateEntryFromFile(item, fileName);
 #if DEBUG
-                    File.Copy(item, Path.Combine(reportDirectory, fileName), true);
+                    Copy(item, Combine(reportDirectory, fileName), true);
 #endif
                 }
                 var archiveEntry = zipArchive.CreateEntry("Index.html");
@@ -83,13 +88,13 @@ namespace MetricsExtractor
                 using (var streamWriter = new StreamWriter(stream, Encoding.UTF8))
                     streamWriter.Write(report);
 #if DEBUG
-                reportPath = Path.Combine(reportDirectory, "Index.html");
-                File.WriteAllText(reportPath, report, Encoding.UTF8);
+                reportPath = Combine(reportDirectory, "Index.html");
+                WriteAllText(reportPath, report, Encoding.UTF8);
 #endif
                 zipArchive.Dispose();
             }
 
-            using (var fileStream = File.Open(rawReportPath, FileMode.Create))
+            using (var fileStream = Open(rawReportPath, FileMode.Create))
             {
                 var xmlSerializer = new XmlSerializer(typeof(EstadoDoProjeto));
                 xmlSerializer.Serialize(fileStream, resultadoGeral);
@@ -158,7 +163,7 @@ namespace MetricsExtractor
             });
             foreach (var project in projects)
             {
-                var calculate = await metricsCalculator.Calculate(project, solution);
+                var calculate = await metricsCalculator.Calculate(project, solution).ConfigureAwait(false);
                 metrics.Add(calculate);
             }
 

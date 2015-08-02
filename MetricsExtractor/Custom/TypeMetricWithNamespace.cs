@@ -52,6 +52,8 @@ namespace MetricsExtractor.Custom
 
         public ClassRank Rank { get; private set; }
 
+        public ITypeDocumentation Documentation { get; private set; }
+
         public TypeMetricWithNamespace WithNamespace(string @namespace)
         {
             Namespace = @namespace;
