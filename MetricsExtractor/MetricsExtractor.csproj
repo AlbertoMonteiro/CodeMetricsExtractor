@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DocoptNet, Version=0.6.1.4, Culture=neutral, PublicKeyToken=7a38c71da49a547e, processorArchitecture=MSIL">
+      <HintPath>..\packages\docopt.net.0.6.1.6\lib\net40\DocoptNet.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.CodeAnalysis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeAnalysis.Common.1.0.0\lib\net45\Microsoft.CodeAnalysis.dll</HintPath>
       <Private>True</Private>
@@ -97,7 +101,6 @@
     <Compile Include="Custom\TypeMetricWithNamespace.cs" />
     <Compile Include="TimerMeasure.cs" />
     <Compile Include="ClassRank.cs" />
-    <Compile Include="DashedParameterSerializer.cs" />
     <Compile Include="EstadoDoProjeto.cs" />
     <Compile Include="MetodoComTipo.cs" />
     <Compile Include="MetodoRuim.cs" />
@@ -115,6 +118,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Main.usage.txt" />
     <Content Include="ReportTemplate\Index.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -135,6 +139,9 @@
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

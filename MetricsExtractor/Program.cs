@@ -6,15 +6,18 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using ArchiMetrics.Analysis;
 using ArchiMetrics.Common;
 using ArchiMetrics.Common.Metrics;
+using DocoptNet;
 using MetricsExtractor.Custom;
 using MetricsExtractor.ReportTemplate;
 using Microsoft.CodeAnalysis;
+using static System.Console;
 using static System.IO.File;
 using static System.IO.Path;
 
@@ -22,25 +25,46 @@ namespace MetricsExtractor
 {
     class Program
     {
+        private const string USAGE = @"CodeMetrics Extractor.
+
+    Usage:
+      MetricsExtractor.exe (-s | --solution) <solution>
+      MetricsExtractor.exe -s <solution> [-ip <ignoredProjects>]
+      MetricsExtractor.exe -s <solution> [-in <ignoredNamespaces>]
+      MetricsExtractor.exe -s <solution> [-it <ignoredTypes>]
+      MetricsExtractor.exe -s <solution> [-ip <ignoredProjects>] [-in <ignoredNamespaces>] [-it <ignoredTypes>]
+
+    Options:
+      -s --solution                                                     Load projects from solution.
+      -ip <ignoredProjects> --ignoredprojects <ignoredProjects>         Projets in solution that you want to ignore, split them by "";""
+      -in <ignoredNamespaces> --ignorednamespaces <ignoredNamespaces>   Namespaces in your application that you want to ignore, split them by "";""
+      -it <ignoredTypes> --ignoredtypes <ignoredTypes>                  Types in your application that you want to ignore, split them by "";""
+
+    ";
         private static readonly List<ClassRank> ClassRanks = Enum.GetValues(typeof(ClassRank)).Cast<ClassRank>().ToList();
         private static readonly string ApplicationPath = GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
         static void Main(string[] args)
         {
-            if (!args.Any())
+            MetricConfiguration metricConfiguration;
+            try
             {
-                Console.WriteLine("No solution configured");
+                var arguments = new Docopt().Apply(USAGE, args, version: "CodeMetrics Extractor 2.0", optionsFirst: true);
+
+                metricConfiguration = new MetricConfiguration(arguments);
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex.Message);
                 return;
             }
-
-            var metricConfiguration = DashedParameterSerializer.Deserialize<MetricConfiguration>(args);
 
             var stopwatch = Stopwatch.StartNew();
             var result = RunCodeMetrics(metricConfiguration).Result;
             stopwatch.Stop();
 
-            Console.WriteLine($"All projects measure(Elapsed: {stopwatch.Elapsed}), creating report");
-            var ignoredNamespaces = metricConfiguration.IgnoredNamespaces ?? Enumerable.Empty<string>();
+            WriteLine($"All projects measure(Elapsed: {stopwatch.Elapsed}), creating report");
+            var ignoredNamespaces = metricConfiguration.IgnoredNamespaces;
             var namespaceMetrics = result.Where(nm => !ignoredNamespaces.Contains(nm.Name)).ToList();
 
             var types = namespaceMetrics.SelectMany(x => x.TypeMetrics, (nm, t) => new TypeMetricWithNamespace(t).WithNamespace(nm.Name)).Distinct().ToList();
@@ -55,7 +79,7 @@ namespace MetricsExtractor
 
             var reportPath = GenerateReport(resultadoGeral, metricConfiguration.SolutionDirectory);
 
-            Console.WriteLine("Report generated in: {0}", reportPath);
+            WriteLine("Report generated in: {0}", reportPath);
 #if DEBUG
             Process.Start(reportPath);
 #endif
@@ -146,14 +170,14 @@ namespace MetricsExtractor
 
         private static async Task<IEnumerable<INamespaceMetric>> RunCodeMetrics(MetricConfiguration configuration)
         {
-            Console.WriteLine("Loading Solution");
+            WriteLine("Loading Solution");
             var solutionProvider = new SolutionProvider();
             var solution = await solutionProvider.Get(configuration.Solution).ConfigureAwait(false);
-            Console.WriteLine("Solution loaded");
+            WriteLine("Solution loaded");
 
             var projects = solution.Projects.Where(p => !configuration.IgnoredProjects.Contains(p.Name)).ToList();
 
-            Console.WriteLine("Loading metrics, wait it may take a while.");
+            WriteLine("Loading metrics, wait it may take a while.");
 
             var metrics = new List<IEnumerable<INamespaceMetric>>();
             var metricsCalculator = new CodeMetricsCalculator(new CalculationConfiguration

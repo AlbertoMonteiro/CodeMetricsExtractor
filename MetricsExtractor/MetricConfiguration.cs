@@ -1,23 +1,32 @@
-using System.Linq;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using DocoptNet;
 using static System.IO.Path;
-using static System.Linq.Enumerable;
 
 namespace MetricsExtractor
 {
     public class MetricConfiguration
     {
-        public MetricConfiguration()
+        private readonly IDictionary<string, ValueObject> _arguments;
+
+        public MetricConfiguration(IDictionary<string, ValueObject> arguments)
         {
-            IgnoredTypes = IgnoredNamespaces = IgnoredProjects = Empty<string>().ToArray();
+            _arguments = arguments;
         }
-        public string Solution { get; set; }
+
+        public string Solution => _arguments["<solution>"].ToString();
 
         public string SolutionDirectory => GetDirectoryName(Solution);
 
-        public string[] IgnoredProjects { get; set; }
+        public ImmutableArray<string> IgnoredProjects => GetImmutableArray("ignoredProjects");
 
-        public string[] IgnoredNamespaces { get; set; }
+        public ImmutableArray<string> IgnoredNamespaces => GetImmutableArray("ignoredNamespaces");
 
-        public string[] IgnoredTypes { get; set; }
+        public ImmutableArray<string> IgnoredTypes => GetImmutableArray("ignoredTypes");
+
+        private ImmutableArray<string> GetImmutableArray(string key)
+            => _arguments[$"<{key}>"] != null
+                ? _arguments[$"<{key}>"].ToString().Split(';').ToImmutableArray()
+                : ImmutableArray<string>.Empty;
     }
 }

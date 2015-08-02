@@ -25,34 +25,20 @@ You must install
 
 
 ````
-MetricsExtractor.exe -solution SolutionPath.sln
-````
+CodeMetrics Extractor.
 
-Aditional parameters:
+    Usage:
+      MetricsExtractor.exe (-s | --solution) <solution>
+      MetricsExtractor.exe -s <solution> [-ip <ignoredProjects>]
+      MetricsExtractor.exe -s <solution> [-in <ignoredNamespaces>]
+      MetricsExtractor.exe -s <solution> [-it <ignoredTypes>]
+      MetricsExtractor.exe -s <solution> [-ip <ignoredProjects>] [-in <ignoredNamespaces>] [-it <ignoredTypes>]
 
-#### IgnoredProjects 
-You can list projets in solution that you want to ignore, you must split them by "**;**"
+    Options:
+      -s --solution                                                     Load projects from solution.
+      -ip <ignoredProjects> --ignoredprojects <ignoredProjects>         Projets in solution that you want to ignore, split them by ";"
+      -in <ignoredNamespaces> --ignorednamespaces <ignoredNamespaces>   Namespaces in your application that you want to ignore, split them by ";"
+      -it <ignoredTypes> --ignoredtypes <ignoredTypes>                  Types in your application that you want to ignore, split them by ";"
 
-Example:
 
-````
-metricsextractor.exe -solution solutionpath.sln -ignoredprojects "Project.Core.Tests;Project.Data.Tests;Project.Web.Tests"
-````
-
-#### IgnoredNamespaces 
-You can list namespaces in your application that you want to ignore, you must split them by "**;**"
-
-Example:
-
-````
-metricsextractor.exe -solution solutionpath.sln -ignorednamespaces "Namespace.Core.Tests;Namespace.Data.Migrations"
-````
-
-#### IgnoredTypes 
-You can list types in your application that you want to ignore, you must split them by "**;**"
-
-Example:
-
-````
-metricsextractor.exe -solution solutionpath.sln -ignoredtypes "Namespace.Core.Person;Namespace.Data.UnitOfWork"
 ````
