@@ -39,11 +39,9 @@ namespace MetricsExtractor
 
         public ImmutableArray<string> IgnoredTypes { get; }
 
-        public string JsonConfigFile => _arguments["<jsonfileconfig>"].ToString();
+        public string JsonConfigFile => _arguments["<jsonfileconfig>"]?.ToString();
 
         private ImmutableArray<string> GetImmutableArray(string key)
-            => _arguments[$"<{key}>"] != null
-                ? _arguments[$"<{key}>"].ToString().Split(';').ToImmutableArray()
-                : ImmutableArray<string>.Empty;
+            => _arguments[$"<{key}>"]?.ToString().Split(';').ToImmutableArray() ?? ImmutableArray<string>.Empty;
     }
 }
