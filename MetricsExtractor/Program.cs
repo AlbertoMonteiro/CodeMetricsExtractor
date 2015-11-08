@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-#if DEBUG
 using System.Diagnostics;
-#endif
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
