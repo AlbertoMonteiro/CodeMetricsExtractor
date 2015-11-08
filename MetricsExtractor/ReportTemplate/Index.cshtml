@@ -10,6 +10,11 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
     <link rel="stylesheet" type="text/css" href="site.css">
+    <style>
+        div.tooltip-inner {
+            max-width: 700px;
+        }
+    </style>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
 </head>
@@ -86,8 +91,7 @@
                             <table class="table table-striped table-hover ">
                                 <thead>
                                     <tr>
-                                        <th>Classe</th>
-                                        <th>Nome do método</th>
+                                        <th>Classe/Nome do método</th>
                                         <th>SLOC <span class="glyphicon glyphicon-exclamation-sign cor-azul" data-original-title="Linhas de Código(Source Lines Of Code)" data-toggle="tooltip" aria-hidden="true"></span></th>
                                         <th>Comp. Ciclomática</th>
                                         <th>Manutenibilidade</th>
@@ -97,8 +101,7 @@
                                     @foreach (MetodoRuim metodoRuim in md.MetodosRuins)
                                     {
                                         <tr>
-                                            <td>@metodoRuim.ClassName</td>
-                                            <td>@metodoRuim.NomeMetodo</td>
+                                            <td>@(metodoRuim.ClassName + "." + metodoRuim.NomeMetodo) <span class="glyphicon glyphicon-exclamation-sign cor-azul" data-original-title="@(metodoRuim.FullClassName + "." + metodoRuim.NomeMetodo)" data-toggle="tooltip" aria-hidden="true"></span></td>
                                             <td>@metodoRuim.QuantidadeDeLinhas</td>
                                             <td>@metodoRuim.Complexidade</td>
                                             <td>@metodoRuim.Manutenibilidade.ToString("N0")</td>
@@ -122,12 +125,29 @@
                         </div>
                         <div id="collapse@(type.Key)" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading@(type.Key)" aria-expanded="false">
                             <div class="panel-body">
-                                <ul>
-                                    @foreach (var typeWithMetric in type.Value)
-                                    {
-                                        <li>@typeWithMetric.FullName</li>
-                                    }
-                                </ul>
+                                <table class="table table-striped table-hover table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Classe</th>
+                                            <th>Manutenibilidade <span class="glyphicon glyphicon-exclamation-sign cor-azul" data-original-title="Número de 0-100" data-toggle="tooltip" aria-hidden="true"></span></th>
+                                            <th>Comp. Ciclomática <span class="glyphicon glyphicon-exclamation-sign cor-azul" data-original-title="Complexidade ciclomática" data-toggle="tooltip" aria-hidden="true"></span></th>
+                                            <th>Profundidade de Herança</th>
+                                            <th>Linhas de código</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var typeWithMetric in type.Value)
+                                        {
+                                            <tr>
+                                                <td>@typeWithMetric.Name <span class="glyphicon glyphicon-exclamation-sign cor-azul" data-original-title="@typeWithMetric.FullName" data-toggle="tooltip" aria-hidden="true"></td>
+                                                <td>@typeWithMetric.MaintainabilityIndex.ToString("0")</td>
+                                                <td>@typeWithMetric.CyclomaticComplexity</td>
+                                                <td>@typeWithMetric.DepthOfInheritance</td>
+                                                <td>@typeWithMetric.SourceLinesOfCode</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -137,7 +157,7 @@
     </div>
     <script type="text/javascript">
         $(function () {
-            $('[data-toggle="tooltip"]').tooltip();
+            $('[data-toggle="tooltip"]').tooltip({ trigger: "click" });
             $(".progress-bar-success").css("width", "@(md.Manutenibilidade)%");
         });
     </script>

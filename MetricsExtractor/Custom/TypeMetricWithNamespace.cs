@@ -48,7 +48,7 @@ namespace MetricsExtractor.Custom
 
         public string Namespace { get; private set; }
 
-        public string FullName { get { return string.Format("{0}.{1}", Namespace, Name); } }
+        public string FullName => $"{Namespace}.{Name}";
 
         public ClassRank Rank { get; private set; }
 

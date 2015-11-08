@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -33,12 +32,14 @@ namespace MetricsExtractor
       MetricsExtractor.exe -s <solution> [-in <ignoredNamespaces>]
       MetricsExtractor.exe -s <solution> [-it <ignoredTypes>]
       MetricsExtractor.exe -s <solution> [-ip <ignoredProjects>] [-in <ignoredNamespaces>] [-it <ignoredTypes>]
+      MetricsExtractor.exe -s <solution> [-jsonconfig <jsonfileconfig>]
 
     Options:
       -s --solution                                                     Load projects from solution.
       -ip <ignoredProjects> --ignoredprojects <ignoredProjects>         Projets in solution that you want to ignore, split them by "";""
       -in <ignoredNamespaces> --ignorednamespaces <ignoredNamespaces>   Namespaces in your application that you want to ignore, split them by "";""
       -it <ignoredTypes> --ignoredtypes <ignoredTypes>                  Types in your application that you want to ignore, split them by "";""
+      -jsonconfig <jsonfileconfig>                                      User a json file to configure metrics extraction "";""
 
     ";
         private static readonly List<ClassRank> ClassRanks = Enum.GetValues(typeof(ClassRank)).Cast<ClassRank>().ToList();
@@ -153,19 +154,11 @@ namespace MetricsExtractor
 
         private static List<MetodoRuim> GetMetodosRuins(List<MetodoComTipo> metodos, int maxLinesOfCodeOnMethod)
         {
-            var metodosRuins = metodos
+            return metodos
                 .Where(x => (x.Metodo.SourceLinesOfCode >= maxLinesOfCodeOnMethod) || (x.Metodo.CyclomaticComplexity >= 10))
-                .Select(x => new MetodoRuim
-                {
-                    ClassName = x.Tipo.FullName,
-                    NomeMetodo = x.Metodo.Name,
-                    Complexidade = x.Metodo.CyclomaticComplexity,
-                    Manutenibilidade = x.Metodo.MaintainabilityIndex,
-                    QuantidadeDeLinhas = x.Metodo.SourceLinesOfCode,
-                })
+                .Select(x => new MetodoRuim(x.Tipo.Name, x.Tipo.Namespace, x.Metodo.Name, x.Metodo.MaintainabilityIndex, x.Metodo.CyclomaticComplexity, x.Metodo.SourceLinesOfCode))
                 .OrderByDescending(x => x.QuantidadeDeLinhas).ThenByDescending(x => x.Complexidade)
                 .ToList();
-            return metodosRuins;
         }
 
         private static async Task<IEnumerable<INamespaceMetric>> RunCodeMetrics(MetricConfiguration configuration)

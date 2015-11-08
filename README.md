@@ -33,12 +33,14 @@ CodeMetrics Extractor.
       MetricsExtractor.exe -s <solution> [-in <ignoredNamespaces>]
       MetricsExtractor.exe -s <solution> [-it <ignoredTypes>]
       MetricsExtractor.exe -s <solution> [-ip <ignoredProjects>] [-in <ignoredNamespaces>] [-it <ignoredTypes>]
+      MetricsExtractor.exe -s <solution> [-jsonconfig <jsonfileconfig>]
 
     Options:
       -s --solution                                                     Load projects from solution.
-      -ip <ignoredProjects> --ignoredprojects <ignoredProjects>         Projets in solution that you want to ignore, split them by ";"
-      -in <ignoredNamespaces> --ignorednamespaces <ignoredNamespaces>   Namespaces in your application that you want to ignore, split them by ";"
-      -it <ignoredTypes> --ignoredtypes <ignoredTypes>                  Types in your application that you want to ignore, split them by ";"
+      -ip <ignoredProjects> --ignoredprojects <ignoredProjects>         Projets in solution that you want to ignore, split them by "";""
+      -in <ignoredNamespaces> --ignorednamespaces <ignoredNamespaces>   Namespaces in your application that you want to ignore, split them by "";""
+      -it <ignoredTypes> --ignoredtypes <ignoredTypes>                  Types in your application that you want to ignore, split them by "";""
+      -jsonconfig <jsonfileconfig>                                      User a json file to configure metrics extraction "";""
 
 
 ````
