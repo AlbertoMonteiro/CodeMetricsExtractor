@@ -40,7 +40,7 @@ CodeMetrics Extractor.
       -ip <ignoredProjects> --ignoredprojects <ignoredProjects>         Projets in solution that you want to ignore, split them by "";""
       -in <ignoredNamespaces> --ignorednamespaces <ignoredNamespaces>   Namespaces in your application that you want to ignore, split them by "";""
       -it <ignoredTypes> --ignoredtypes <ignoredTypes>                  Types in your application that you want to ignore, split them by "";""
-      -jsonconfig <jsonfileconfig>                                      User a json file to configure metrics extraction "";""
+      -jsonconfig <jsonfileconfig>                                      User a json file to configure metrics extraction
 
 
 ````
