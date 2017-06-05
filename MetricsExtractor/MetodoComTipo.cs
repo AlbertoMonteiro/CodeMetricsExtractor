@@ -1,4 +1,4 @@
-using ArchiMetrics.Common.Metrics;
+using ArchiMetrics.Analysis.Common.Metrics;
 using MetricsExtractor.Custom;
 
 namespace MetricsExtractor

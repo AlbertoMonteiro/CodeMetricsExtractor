@@ -8,8 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using ArchiMetrics.Analysis;
-using ArchiMetrics.Common;
-using ArchiMetrics.Common.Metrics;
+using ArchiMetrics.Analysis.Common;
+using ArchiMetrics.Analysis.Common.Metrics;
 using DocoptNet;
 using MetricsExtractor.Custom;
 using MetricsExtractor.ReportTemplate;
@@ -66,7 +66,12 @@ namespace MetricsExtractor
             var ignoredNamespaces = metricConfiguration.IgnoredNamespaces;
             var namespaceMetrics = result.Where(nm => !ignoredNamespaces.Contains(nm.Name)).ToList();
 
-            var types = namespaceMetrics.SelectMany(x => x.TypeMetrics, (nm, t) => new TypeMetricWithNamespace(t).WithNamespace(nm.Name)).Distinct().ToList();
+            var types = namespaceMetrics
+                .Where(n => !metricConfiguration.IgnoredNamespaces.Contains(n.Name))
+                .SelectMany(x => x.TypeMetrics, (nm, t) => new TypeMetricWithNamespace(t).WithNamespace(nm.Name))
+                .Where(x => !metricConfiguration.IgnoredTypes.Contains(x.FullName))
+                .Distinct()
+                .ToArray();
 
             const int MAX_LINES_OF_CODE_ON_METHOD = 30;
 
@@ -126,7 +131,7 @@ namespace MetricsExtractor
             return reportPath;
         }
 
-        private static Dictionary<ClassRank, List<TypeMetricWithNamespace>> GetClassesGroupedByRank(List<TypeMetricWithNamespace> types)
+        private static Dictionary<ClassRank, List<TypeMetricWithNamespace>> GetClassesGroupedByRank(TypeMetricWithNamespace[] types)
         {
             var classesGroupedByRank = new Dictionary<ClassRank, List<TypeMetricWithNamespace>>();
             ClassRanks.ForEach(c => classesGroupedByRank.Add(c, new List<TypeMetricWithNamespace>()));
@@ -136,7 +141,7 @@ namespace MetricsExtractor
             return classesGroupedByRank;
         }
 
-        private static EstadoDoProjeto CreateEstadoDoProjeto(List<TypeMetricWithNamespace> types, List<MetodoRuim> metodosRuins, int totalDeMetodos, IEnumerable<INamespaceMetric> namespaceMetrics)
+        private static EstadoDoProjeto CreateEstadoDoProjeto(TypeMetricWithNamespace[] types, List<MetodoRuim> metodosRuins, int totalDeMetodos, IEnumerable<INamespaceMetric> namespaceMetrics)
         {
             var resultadoGeral = new EstadoDoProjeto
             {
@@ -153,9 +158,10 @@ namespace MetricsExtractor
         private static List<MetodoRuim> GetMetodosRuins(List<MetodoComTipo> metodos, int maxLinesOfCodeOnMethod)
         {
             return metodos
-                .Where(x => (x.Metodo.SourceLinesOfCode >= maxLinesOfCodeOnMethod) || (x.Metodo.CyclomaticComplexity >= 10))
+                .Where(x => x.Metodo.SourceLinesOfCode >= maxLinesOfCodeOnMethod || x.Metodo.CyclomaticComplexity >= 10)
                 .Select(x => new MetodoRuim(x.Tipo.Name, x.Tipo.Namespace, x.Metodo.Name, x.Metodo.MaintainabilityIndex, x.Metodo.CyclomaticComplexity, x.Metodo.SourceLinesOfCode))
-                .OrderByDescending(x => x.QuantidadeDeLinhas).ThenByDescending(x => x.Complexidade)
+                .OrderByDescending(x => x.QuantidadeDeLinhas)
+                .ThenByDescending(x => x.Complexidade)
                 .ToList();
         }
 
@@ -171,11 +177,8 @@ namespace MetricsExtractor
             WriteLine("Loading metrics, wait it may take a while.");
 
             var metrics = new List<IEnumerable<INamespaceMetric>>();
-            var metricsCalculator = new CodeMetricsCalculator(new CalculationConfiguration
-            {
-                NamespacesIgnored = configuration.IgnoredNamespaces,
-                TypesIgnored = configuration.IgnoredTypes
-            });
+            var metricsCalculator = new CodeMetricsCalculator();
+
             foreach (var project in projects)
             {
                 var calculate = await metricsCalculator.Calculate(project, solution).ConfigureAwait(false);
@@ -185,7 +188,7 @@ namespace MetricsExtractor
             return metrics.SelectMany(nm => nm);
         }
 
-        private static IEnumerable<TypeMetricWithNamespace> CreateClassesRank(List<TypeMetricWithNamespace> types)
+        private static IEnumerable<TypeMetricWithNamespace> CreateClassesRank(TypeMetricWithNamespace[] types)
         {
             return from type in types
                    let maintainabilityIndex = type.MaintainabilityIndex

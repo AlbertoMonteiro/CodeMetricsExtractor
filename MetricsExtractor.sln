@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetricsExtractor", "MetricsExtractor\MetricsExtractor.csproj", "{9DC6404C-B685-4733-ACB0-94504FD05E64}"
 EndProject
@@ -12,9 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ArchiMetrics", "ArchiMetrics", "{4F0B2B4F-2D17-45A3-B6CC-F1A7C2D5E762}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiMetrics.Analysis", "ArchiMetrics\ArchiMetrics.Analysis\ArchiMetrics.Analysis.csproj", "{67478EFB-3E11-4459-B1CE-47FE37F1F968}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiMetrics.Common", "ArchiMetrics\ArchiMetrics.Common\ArchiMetrics.Common.csproj", "{D8BE9D36-EC03-4EEE-91DA-F9D8C9FD11D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArchiMetrics.Analysis", "ArchiMetrics\src\ArchiMetrics.Analysis\ArchiMetrics.Analysis.csproj", "{2DFDEAE8-41AA-4C80-A5A7-BBB82FDFD8BA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,20 +24,15 @@ Global
 		{9DC6404C-B685-4733-ACB0-94504FD05E64}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DC6404C-B685-4733-ACB0-94504FD05E64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DC6404C-B685-4733-ACB0-94504FD05E64}.Release|Any CPU.Build.0 = Release|Any CPU
-		{67478EFB-3E11-4459-B1CE-47FE37F1F968}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{67478EFB-3E11-4459-B1CE-47FE37F1F968}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{67478EFB-3E11-4459-B1CE-47FE37F1F968}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{67478EFB-3E11-4459-B1CE-47FE37F1F968}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D8BE9D36-EC03-4EEE-91DA-F9D8C9FD11D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D8BE9D36-EC03-4EEE-91DA-F9D8C9FD11D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D8BE9D36-EC03-4EEE-91DA-F9D8C9FD11D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D8BE9D36-EC03-4EEE-91DA-F9D8C9FD11D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DFDEAE8-41AA-4C80-A5A7-BBB82FDFD8BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DFDEAE8-41AA-4C80-A5A7-BBB82FDFD8BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DFDEAE8-41AA-4C80-A5A7-BBB82FDFD8BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DFDEAE8-41AA-4C80-A5A7-BBB82FDFD8BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{67478EFB-3E11-4459-B1CE-47FE37F1F968} = {4F0B2B4F-2D17-45A3-B6CC-F1A7C2D5E762}
-		{D8BE9D36-EC03-4EEE-91DA-F9D8C9FD11D2} = {4F0B2B4F-2D17-45A3-B6CC-F1A7C2D5E762}
+		{2DFDEAE8-41AA-4C80-A5A7-BBB82FDFD8BA} = {4F0B2B4F-2D17-45A3-B6CC-F1A7C2D5E762}
 	EndGlobalSection
 EndGlobal

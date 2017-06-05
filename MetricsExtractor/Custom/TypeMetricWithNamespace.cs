@@ -1,22 +1,30 @@
-﻿using System.Collections.Generic;
-using ArchiMetrics.Common.Metrics;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using ArchiMetrics.Analysis.Common.Metrics;
 
 namespace MetricsExtractor.Custom
 {
     public class TypeMetricWithNamespace : ITypeMetric
     {
+        static readonly Type MyType = typeof(TypeMetricWithNamespace);
+
         public TypeMetricWithNamespace(ITypeMetric typeMetric)
         {
             var type = typeMetric.GetType();
-            var myType = typeof(TypeMetricWithNamespace);
-            foreach (var property in type.GetProperties())
+            var props = type.GetProperties()
+                .Join(MyType.GetProperties(), p => p.Name, p => p.Name, Tuple.Create);
+
+            foreach (var property in props)
             {
-                var prop = myType.GetProperty(property.Name);
-                prop.SetValue(this, property.GetValue(typeMetric));
+                var value = property.Item1.GetValue(typeMetric);
+                property.Item2.SetValue(this, value);
             }
         }
 
         public IEnumerable<ITypeCoupling> ClassCouplings { get; private set; }
+
+        public IEnumerable<ITypeCoupling> Dependencies { get; private set; }
 
         public int LinesOfCode { get; private set; }
 
