@@ -7,15 +7,15 @@ With Code Metrics Extractor you can see project health overview, classes health 
 
 ## Project health overview
 
-![Project Health](/Etc/Project Health.png)
+![Project Health](https://github.com/AlbertoMonteiro/CodeMetricsExtractor/blob/master/Etc/Project%20Health.png?raw=true)
 
 ## Classes health overview
 
-![Classes Health](/Etc/Classes Health.png)
+![Classes Health](https://github.com/AlbertoMonteiro/CodeMetricsExtractor/blob/master/Etc/Classes%20Health.png?raw=true)
 
 ## Bad methods
 
-![Bad methods](/Etc/Bad Methods.png)
+![Bad methods](https://github.com/AlbertoMonteiro/CodeMetricsExtractor/blob/master/Etc/Bad%20Methods.png?raw=true)
 
 Using project
 -------------------
